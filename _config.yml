@@ -1,7 +1,7 @@
 title: Marquis SPA
 description: Premium spa and wellness services
-url: "https://marquis-spa.github.io"
-baseurl: ""
+url: "https://dcmcshan.github.io"
+baseurl: "/marquis-spa"
 
 theme: minima
 plugins:
