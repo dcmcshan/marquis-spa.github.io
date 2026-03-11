@@ -1,0 +1,35 @@
+# Jekyll build
+_site/
+.sass-cache/
+.jekyll-cache/
+
+# Dependencies
+vendor/
+Gemfile.lock
+
+# Environment variables
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Drafts
+_drafts/
+
+# Drafts and future posts
+*.markdown
+!_posts/
+
+# Backup files
+*.bak
+*.backup

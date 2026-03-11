@@ -1,0 +1,57 @@
+---
+layout: default
+---
+
+<div class="hero">
+  <div class="hero-content">
+    <h1>{{ page.title | default: site.title }}</h1>
+    <p class="hero-subtitle">{{ page.subtitle | default: site.description }}</p>
+    <div class="hero-actions">
+      <a href="#services" class="btn btn-primary">Our Services</a>
+      <a href="#booking" class="btn btn-secondary">Book Now</a>
+    </div>
+  </div>
+</div>
+
+<div id="services" class="services-section">
+  <div class="container">
+    <h2 class="section-title">Our Services</h2>
+    <div class="services-grid">
+      {% for service in site.data.services %}
+      <div class="service-card">
+        <div class="service-icon">{{ service.icon }}</div>
+        <h3>{{ service.name }}</h3>
+        <p class="service-description">{{ service.description }}</p>
+        <div class="service-meta">
+          <span class="service-price">{{ service.price }}</span>
+          <span class="service-duration">{{ service.duration }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div id="booking" class="booking-section">
+  <div class="container">
+    <h2 class="section-title">Book Your Appointment</h2>
+    <p class="booking-intro">Schedule your relaxation and wellness experience with us.</p>
+    <div class="booking-embed">
+      <iframe src="https://calendly.com/marquis-spa/bookings" width="100%" height="600" frameborder="0"></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="features-section">
+  <div class="container">
+    <div class="features-grid">
+      {% for feature in site.data.features %}
+      <div class="feature-item">
+        <div class="feature-icon">{{ feature.icon }}</div>
+        <h4>{{ feature.name }}</h4>
+        <p>{{ feature.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

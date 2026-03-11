@@ -1,0 +1,45 @@
+<!-- SEO Meta Tags -->
+<meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+<meta name="keywords" content="{{ page.tags | default: 'spa, massage, wellness, relaxation, beauty, skincare, massage therapy, facial, body wrap, manicure, pedicure' | join: ', ' }}">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ page.url | replace:'index.html','' | relative_url | prepend: site.url }}">
+<meta property="og:title" content="{{ page.title | default: site.title | escape }}">
+<meta property="og:description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+<meta property="og:image" content="{{ page.image | default: '/assets/images/hero.jpg' | relative_url | prepend: site.url }}">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{ page.url | replace:'index.html','' | relative_url | prepend: site.url }}">
+<meta property="twitter:title" content="{{ page.title | default: site.title | escape }}">
+<meta property="twitter:description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+<meta property="twitter:image" content="{{ page.image | default: '/assets/images/hero.jpg' | relative_url | prepend: site.url }}">
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Spa",
+  "name": "{{ site.title }}",
+  "description": "{{ site.description }}",
+  "url": "{{ site.url }}{{ site.baseurl }}",
+  "logo": "{{ '/assets/images/logo.png' | relative_url | prepend: site.url }}",
+  "telephone": "+15551234567",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Spa Lane, Suite 100",
+    "addressLocality": "Your City",
+    "addressRegion": "ST",
+    "postalCode": "12345",
+    "addressCountry": "US"
+  },
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "opens": "09:00",
+    "closes": "20:00",
+    "validFrom": "2024-01-01",
+    "validThrough": "2024-12-31"
+  }
+}
+</script>

@@ -1,0 +1,41 @@
+<footer class="site-footer" role="contentinfo">
+  <div class="wrapper">
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <h4>{{ site.title }}</h4>
+        <p>{{ site.description }}</p>
+      </div>
+      
+      <div class="footer-col footer-col-2">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="{{ '/' | relative_url }}">Home</a></li>
+          <li><a href="{{ '/about/' | relative_url }}">About</a></li>
+          <li><a href="{{ '/services/' | relative_url }}">Services</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col footer-col-3">
+        <h4>Contact</h4>
+        <ul>
+          <li>📍 123 Spa Lane, Suite 100</li>
+          <li>📞 (555) 123-4567</li>
+          <li>✉️ info@marquisspa.com</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="social-links">
+      <p>Follow us:</p>
+      <div class="social-icons">
+        <a href="https://facebook.com/marquisspa" target="_blank">Facebook</a>
+        <a href="https://instagram.com/marquisspa" target="_blank">Instagram</a>
+        <a href="https://twitter.com/marquisspa" target="_blank">Twitter</a>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }}. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
