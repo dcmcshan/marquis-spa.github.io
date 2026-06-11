@@ -1,4 +1,0 @@
-Add your images to this directory.
-- hero.jpg (1920x1080) - Main hero banner
-- logo.png - Your logo
-- service-*.jpg - Service images

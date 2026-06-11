@@ -1,7 +1,5 @@
-# Jekyll build
-_site/
-.sass-cache/
-.jekyll-cache/
+# Generated during mirror refresh
+.mirror-build/
 
 # Dependencies
 vendor/

@@ -1,0 +1,7 @@
+project_id = "marquis-booking"
+
+[functions.caldav-booking]
+verify_jwt = false
+
+[functions.google-calendar-booking]
+verify_jwt = false

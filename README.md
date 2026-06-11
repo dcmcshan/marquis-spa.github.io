@@ -1,66 +1,33 @@
-# Marquis SPA - GitHub Pages Site
+# Marquis GitHub Pages Mirror
 
-This is a static site version of Marquis SPA, built with Jekyll for GitHub Pages.
+This repository publishes a static snapshot of [marquis.spa](https://marquis.spa) to GitHub Pages.
 
-## Features
+## How it works
 
-- **Static Site**: Fast loading, no server-side processing required
-- **Responsive Design**: Works on all devices
-- **Service Listings**: Display all spa services with pricing
-- **Booking Integration**: Embedded scheduling via Calendly/Acuity
-- **SEO Optimized**: Built-in SEO tags and structured data
+`scripts/mirror-site.sh` downloads the core public pages and their assets, then writes the generated HTML into the repository root. GitHub Pages can then serve the site as a plain static site with `.nojekyll`.
 
-## Services
+## Refresh the snapshot
 
-- Swedish Massage
-- Deep Tissue Massage
-- Hot Stone Massage
-- Aromatherapy Massage
-- Facial Treatments
-- Body Wraps
-- Manicure & Pedicure
+```bash
+./scripts/mirror-site.sh
+```
 
-## Setup
+After the script finishes:
 
-### Local Development
+1. Review the changed files.
+2. Commit and push to `main`.
+3. Publish with GitHub Pages from the repository root.
 
-1. Install Ruby and Bundler
-2. Run `bundle install`
-3. Run `bundle exec jekyll serve`
-4. Visit `http://localhost:4000`
+## Notes
 
-### GitHub Pages Deployment
+- Interactive WordPress features such as cart, checkout, login, and AJAX booking behavior may not work fully on GitHub Pages.
+- The current export targets the main marketing pages plus the shop and services landing pages. Add more URLs in `scripts/mirror-site.sh` if you want additional detail pages mirrored too.
 
-1. Push this repository to GitHub
-2. Go to Settings > Pages
-3. Select the `main` branch as the source
-4. Your site will be live at `https://<username>.github.io/marquis-spa/`
+## Booking
 
-## Configuration
+A lightweight booking flow is included at `/booking/`.
 
-Edit `_config.yml` to customize:
-- Site title and description
-- Google Analytics ID
-- Base URL for your GitHub Pages
-
-## Booking Integration
-
-Replace the Calendly iframe in `_layouts/home.html` with your preferred booking service:
-- Calendly
-- Acuity Scheduling
-- Google Calendar
-- Any other booking platform
-
-## E-commerce Integration
-
-For WooCommerce functionality, integrate with:
-- Shopify Buy Button
-- Ecwid
-- Square Online
-- WooCommerce REST API (headless)
-
-## Customization
-
-- Edit `_data/services.yml` to update services
-- Edit `_data/features.yml` to update features
-- Modify `_sass/minima/_layout.scss` for styling
+- The static page collects booking requests.
+- A Supabase Edge Function can write the event into a shared calendar.
+- CalDAV setup details are documented in `docs/caldav-booking-bridge.md`.
+- Google Calendar setup details are documented in `docs/google-calendar-booking-bridge.md`.

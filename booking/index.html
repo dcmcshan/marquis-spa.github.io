@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book a Session | Marquis day SPA</title>
+    <meta
+      name="description"
+      content="Request a session and create a shared calendar event through the Marquis booking bridge."
+    />
+    <link rel="stylesheet" href="booking.css" />
+    <script defer src="booking-config.js"></script>
+    <script defer src="booking.js"></script>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Booking Request</p>
+        <h1>Reserve time on the shared calendar</h1>
+        <p class="lede">
+          Choose a service, preferred start time, and a few contact details.
+          Once submitted, the booking bridge creates an event on the shared
+          calendar.
+        </p>
+        <div class="hero-actions">
+          <a class="ghost-link" href="../work-with-me/">Back to Work With Me</a>
+          <a class="ghost-link" href="../contact/">Contact Page</a>
+        </div>
+      </section>
+
+      <section class="card layout">
+        <div>
+          <h2>Request details</h2>
+          <form id="booking-form" class="booking-form">
+            <label>
+              Full name
+              <input name="name" type="text" autocomplete="name" required />
+            </label>
+
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required />
+            </label>
+
+            <label>
+              Phone
+              <input name="phone" type="tel" autocomplete="tel" />
+            </label>
+
+            <label>
+              Service
+              <select name="service" required>
+                <option value="">Select a service</option>
+                <option>Consultation</option>
+                <option>Massage</option>
+                <option>Couples ritual</option>
+                <option>Postpartum support</option>
+                <option>Custom session</option>
+              </select>
+            </label>
+
+            <div class="split">
+              <label>
+                Start time
+                <input name="start" type="datetime-local" required />
+              </label>
+
+              <label>
+                Duration
+                <select name="duration" required>
+                  <option value="60">60 minutes</option>
+                  <option value="90" selected>90 minutes</option>
+                  <option value="120">120 minutes</option>
+                  <option value="150">150 minutes</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Notes
+              <textarea
+                name="notes"
+                rows="5"
+                placeholder="Preferences, accessibility notes, or anything you'd like included."
+              ></textarea>
+            </label>
+
+            <button id="booking-submit" class="primary-button" type="submit">
+              Create booking request
+            </button>
+
+            <p id="booking-status" class="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <aside class="notes">
+          <h2>How this works</h2>
+          <ul>
+            <li>The page submits to a server-side booking bridge.</li>
+            <li>The bridge writes the event to your shared calendar.</li>
+            <li>No calendar credentials are exposed in the static site.</li>
+          </ul>
+
+          <div class="config-callout">
+            <strong>Setup note</strong>
+            <p>
+              Edit <code>booking/booking-config.js</code> with your bridge URL
+              after deploying the calendar bridge.
+            </p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
