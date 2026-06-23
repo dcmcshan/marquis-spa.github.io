@@ -8,6 +8,17 @@
     return;
   }
 
+  const requestedService = new URLSearchParams(window.location.search).get("service");
+  if (requestedService) {
+    const serviceField = form.elements.service;
+    const serviceOption = Array.from(serviceField.options).find(
+      (option) => option.textContent === requestedService
+    );
+    if (serviceOption) {
+      serviceField.value = serviceOption.value;
+    }
+  }
+
   function setStatus(message, kind) {
     status.textContent = message;
     status.className = "status" + (kind ? " " + kind : "");
