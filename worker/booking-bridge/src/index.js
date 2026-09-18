@@ -10,13 +10,27 @@ export default {
       return respond(null, 204);
     }
 
+    const url = new URL(request.url);
+
+    if (request.method === "GET" && url.pathname === "/availability") {
+      try {
+        const busy = await availability(url.searchParams);
+        return respond({ ok: true, busy }, 200);
+      } catch (error) {
+        return respond(
+          { error: error.message ?? "Unexpected availability error" },
+          error.status ?? 400,
+        );
+      }
+    }
+
     if (request.method !== "POST") {
       return respond(
         {
           ok: true,
           service: "marquis-booking-bridge",
-          google: googleConfigured() ? "configured" : "not_configured",
-          usage: "POST JSON {name,email,phone,service,notes,start,end,timezone,location}",
+          google: googleConfigured() ? "read_only" : "not_configured",
+          usage: "GET /availability?start=<ISO>&end=<ISO> | POST JSON {name,email,phone,service,notes,start,end,timezone,location}",
         },
         200,
       );
@@ -94,14 +108,13 @@ async function commitBooking(body) {
   const end = new Date(body.end).getTime();
 
   const useGoogle = googleConfigured();
-  let googleEvent = null;
 
   if (useGoogle) {
     const token = await getGoogleAccessToken();
     const googleConflicts = await findGoogleConflicts(token, start, end);
     if (googleConflicts.length > 0) {
       throw httpError(
-        "The requested time overlaps an existing calendar event.",
+        "The requested time is unavailable.",
         409,
         googleConflicts,
       );
@@ -119,25 +132,43 @@ async function commitBooking(body) {
         end: new Date(event.end).toISOString(),
       }));
     if (conflicts.length > 0) {
-      throw httpError("The requested time overlaps an existing calendar event.", 409, conflicts);
+      throw httpError("The requested time overlaps an existing booking request.", 409, conflicts);
     }
 
-    if (useGoogle && !googleEvent) {
-      googleEvent = await insertGoogleEvent(body);
-    }
-
-    const updated = insertEvent(file.content, buildVevent(body, googleEvent?.id));
+    const updated = insertEvent(file.content, buildVevent(body));
     const committed = await putCalendarFile(updated, file.sha, body);
     if (committed.ok) {
       return {
         ...committed.result,
-        google: googleEvent
-          ? { id: googleEvent.id, htmlLink: googleEvent.htmlLink }
-          : { skipped: "not_configured" },
+        google: useGoogle ? { mode: "read_only" } : { skipped: "not_configured" },
       };
     }
   }
   throw httpError("Calendar update conflict, please retry.", 503);
+}
+
+async function availability(searchParams) {
+  if (!googleConfigured()) {
+    throw httpError("Google Calendar reading is not configured.", 503);
+  }
+
+  const now = new Date();
+  const defaultEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const start = searchParams.get("start") ? new Date(searchParams.get("start")) : now;
+  const end = searchParams.get("end") ? new Date(searchParams.get("end")) : defaultEnd;
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    throw httpError("Invalid start or end parameter", 400);
+  }
+  if (end.getTime() <= start.getTime()) {
+    throw httpError("End must be after start", 400);
+  }
+  if (end.getTime() - start.getTime() > 90 * 24 * 60 * 60 * 1000) {
+    throw httpError("Availability window cannot exceed 90 days", 400);
+  }
+
+  const token = await getGoogleAccessToken();
+  return findGoogleConflicts(token, start.getTime(), end.getTime());
 }
 
 function googleConfigured() {
@@ -253,54 +284,6 @@ async function findGoogleConflicts(accessToken, startMs, endMs) {
   }));
 }
 
-async function insertGoogleEvent(body) {
-  const accessToken = await getGoogleAccessToken();
-  const response = await fetch(
-    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(env.GOOGLE_CALENDAR_ID)}/events`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json; charset=utf-8",
-      },
-      body: JSON.stringify(buildGoogleEvent(body)),
-    },
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw httpError(
-      `Google Calendar rejected the booking: ${response.status} ${errorText.slice(0, 300)}`,
-      502,
-    );
-  }
-  return response.json();
-}
-
-function buildGoogleEvent(body) {
-  const description = [
-    `Requester: ${body.name}`,
-    `Email: ${body.email}`,
-    `Phone: ${body.phone ?? ""}`,
-    `Timezone: ${body.timezone ?? "UTC"}`,
-    `Notes: ${body.notes ?? ""}`,
-  ].join("\n");
-
-  return {
-    summary: `${body.service} - ${body.name}`,
-    description,
-    location: body.location ?? "Marquis day SPA",
-    start: {
-      dateTime: String(body.start),
-      timeZone: String(body.timezone ?? "UTC"),
-    },
-    end: {
-      dateTime: String(body.end),
-      timeZone: String(body.timezone ?? "UTC"),
-    },
-  };
-}
-
 async function fetchCalendarFile() {
   const path = env.CALENDAR_PATH;
   const url = `https://api.github.com/repos/${env.GITHUB_OWNER}/${env.GITHUB_REPO}/contents/${path}?ref=${env.GITHUB_BRANCH}`;
@@ -383,7 +366,7 @@ function skeletonCalendar() {
   ].join("\r\n");
 }
 
-function buildVevent(body, googleEventId) {
+function buildVevent(body) {
   const start = toIcsUtc(body.start);
   const end = toIcsUtc(body.end);
   const description = [
@@ -392,10 +375,7 @@ function buildVevent(body, googleEventId) {
     `Phone: ${body.phone ?? ""}`,
     `Timezone: ${body.timezone ?? "UTC"}`,
     `Notes: ${body.notes ?? ""}`,
-    googleEventId ? `Google event: ${googleEventId}` : "",
-  ]
-    .filter(Boolean)
-    .join("\\n");
+  ].join("\\n");
 
   return [
     "BEGIN:VEVENT",
