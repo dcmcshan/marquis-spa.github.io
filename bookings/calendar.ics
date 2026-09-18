@@ -1,0 +1,15 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Marquis SPA//Booking Bridge//EN
+CALSCALE:GREGORIAN
+X-WR-CALNAME:Marquis day SPA Bookings
+BEGIN:VEVENT
+UID:d3a326f5-0964-413c-8bcb-1e1ac41e6656@marquis.spa
+DTSTAMP:20260918T195407Z
+DTSTART:20270120T150000Z
+DTEND:20270120T160000Z
+SUMMARY:Validation Test Booking - Validation Test
+DESCRIPTION:Requester: Validation Test\\nEmail: validation@marquis.spa\\nPhone: 555-0100\\nTimezone: America/Denver\\nNotes: Automated end-to-end validation - safe to delete
+LOCATION:Marquis day SPA
+END:VEVENT
+END:VCALENDAR
