@@ -1,0 +1,10 @@
+name = "marquis-booking-bridge"
+main = "src/index.js"
+compatibility_date = "2026-09-18"
+
+[vars]
+ALLOWED_ORIGIN = "https://marquis.spa"
+GITHUB_OWNER = "dcmcshan"
+GITHUB_REPO = "marquis-spa.github.io"
+GITHUB_BRANCH = "main"
+CALENDAR_PATH = "bookings/calendar.ics"
