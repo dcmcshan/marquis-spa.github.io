@@ -21,4 +21,13 @@ SUMMARY:Validation Test Booking - Conflict Probe 2
 DESCRIPTION:Requester: Conflict Probe 2\\nEmail: validation@marquis.spa\\nPhone: \\nTimezone: UTC\\nNotes: 
 LOCATION:Marquis day SPA
 END:VEVENT
+BEGIN:VEVENT
+UID:b1a15494-2669-4e48-b8bd-480b85f4d986@marquis.spa
+DTSTAMP:20260918T215518Z
+DTSTART:20261220T183000Z
+DTEND:20261220T193000Z
+SUMMARY:Validation Test Booking - Final Validation
+DESCRIPTION:Requester: Final Validation\\nEmail: validation@marquis.spa\\nPhone: \\nTimezone: UTC\\nNotes: Automated end-to-end validation - safe to delete
+LOCATION:Marquis day SPA
+END:VEVENT
 END:VCALENDAR
