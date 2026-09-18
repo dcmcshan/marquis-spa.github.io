@@ -1,10 +1,13 @@
-# Google Calendar Booking Bridge
+# Booking Bridge (Cloudflare Worker, read-only Google Calendar)
 
-This repository includes a Supabase Edge Function that accepts booking requests from the static `/booking/` page and writes them into a shared Google Calendar.
+The `/booking/` form posts to a Cloudflare Worker that records booking
+requests and reads unavailable times from the shared "Daniel & Camille"
+Google Calendar.
 
 ## Included files
 
-- `supabase/functions/google-calendar-booking/index.ts`: Google Calendar bridge
+- `worker/booking-bridge/src/index.js`: booking bridge Worker
+- `worker/booking-bridge/wrangler.toml`: Worker configuration
 - `booking/index.html`: public booking form
 - `booking/booking.js`: form submission logic
 - `booking/booking-config.js`: where the public bridge URL is configured
@@ -12,60 +15,55 @@ This repository includes a Supabase Edge Function that accepts booking requests 
 ## How it works
 
 1. GitHub Pages serves the static booking form.
-2. The form posts booking details to the Supabase Edge Function.
-3. The Edge Function uses a Google service account to:
-   - check for time conflicts with the Google Calendar FreeBusy API
-   - create the event in the shared calendar if the slot is open
+2. The form posts booking details to the Worker.
+3. The Worker records the request in `bookings/calendar.ics` in the
+   `marquis-spa.github.io` repository (the public calendar link).
+4. If the Google Calendar service account is configured, the Worker also
+   checks the "Daniel & Camille" calendar for busy times (FreeBusy) and
+   rejects the request with HTTP `409` when the slot is unavailable.
+5. Google Calendar is **read-only**; the Worker never writes events there.
+   Block times on the "Daniel & Camille" calendar and the booking form
+   will refuse those slots.
 
-## Important requirement
+## Endpoints
 
-The calendar ID alone is not enough to write events.
+- `GET /availability?start=<ISO>&end=<ISO>`: busy slots for a window
+  (max 90 days).
+- `POST {name,email,phone,service,notes,start,end,timezone,location}`:
+  submit a booking request.
 
-You must create a Google service account and share the target Google Calendar with that service account email with permission to edit events.
+## Google Cloud setup
 
-That means your shared calendar should be shared with an address that looks like:
+A service account with the Calendar JSON API enabled is required. The
+service account only needs Reader access to the shared calendar.
 
-- `booking-bridge@your-project.iam.gserviceaccount.com`
+1. `gcloud services enable calendar-json.googleapis.com --project=<project>`
+2. `gcloud iam service-accounts create marquis-booking-reader --project=<project>`
+3. `gcloud iam service-accounts keys create .secrets/marquis-booking-calendar-key.json --iam-account=marquis-booking-reader@<project>.iam.gserviceaccount.com`
+4. Share the "Daniel & Camille" calendar with the service account email
+   (Reader) in Google Calendar > Settings > Share with specific people.
 
-## Supabase secrets
-
-Set these secrets before deployment:
+## Cloudflare secrets
 
 ```bash
-supabase secrets set \
-  ALLOWED_ORIGIN=https://marquis.spa \
-  GOOGLE_CALENDAR_ID='your-shared-calendar-id@group.calendar.google.com' \
-  GOOGLE_SERVICE_ACCOUNT_EMAIL='booking-bridge@your-project.iam.gserviceaccount.com' \
-  GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY='-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+wrangler secret put GITHUB_TOKEN
+wrangler secret put GOOGLE_SERVICE_ACCOUNT_EMAIL
+wrangler secret put GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY
 ```
+
+`GOOGLE_CALENDAR_ID` is set in `wrangler.toml`:
+
+- `ca7a560e76044c59bbb72a70b98a21a774b99c2f5195eb7357ecd1a1cdf74344@group.calendar.google.com`
 
 ## Deploy
 
 ```bash
-supabase functions deploy google-calendar-booking --no-verify-jwt
+cd worker/booking-bridge && wrangler deploy
 ```
 
-## Frontend config
+## Booking records
 
-Point the public booking page to the deployed function in `booking/booking-config.js`:
+Booking requests accumulate in:
 
-```js
-window.MarquisBookingConfig = {
-  bookingEndpoint: "https://<project-ref>.supabase.co/functions/v1/google-calendar-booking",
-  location: "Marquis day SPA",
-  timezone: "America/Denver",
-  successMessage: "Your session has been added to the shared calendar.",
-};
-```
+- `https://raw.githubusercontent.com/dcmcshan/marquis-spa.github.io/main/bookings/calendar.ics`
 
-## Conflict behavior
-
-If the requested time overlaps an existing busy event, the function returns HTTP `409` instead of creating a new event.
-
-## Your shared calendar
-
-The calendar you mentioned fits this setup:
-
-- `ca7a560e76044c59bbb72a70b98a21a774b99c2f5195eb7357ecd1a1cdf74344@group.calendar.google.com`
-
-Use that value as `GOOGLE_CALENDAR_ID` after the calendar has been shared with the service account email.
